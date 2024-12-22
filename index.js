@@ -6,15 +6,7 @@ http.createServer(function (req, res) {
     const url = req.url;
     const method = req.method;
     if (url == "/chat" && method == "GET") {
-        if (isValidHandshake(req)) {
-            res.writeHead(101, {
-                'Upgrade': 'websocket',
-                'Connection': 'Upgrade',
-                'Sec-WebSocket-Accept': generateAcceptValue(req.headers["sec-websocket-key"])
-            });
-            res.end();
-        }
-        else {
+        if (!isValidHandshake(req)) {
             res.writeHead(400, { 'Content-Type': 'text/html' });
             res.end();
             return;
