@@ -5,21 +5,33 @@ import { Frame } from './frame.js';
 const GLOABALLY_UNIQUE_IDENTIFIER = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
 const server = http.createServer(function (req, res) {
+    res.writeHead(404, { "Content-Type": "text/plain" });
+    res.write("Websocket server does not support HTTP requests");
+    res.end();
+}).listen(8080);
+server.on("upgrade", (req, socket, head) => {
+
     const url = req.url;
     const method = req.method;
     if (url == "/chat" && method == "GET") {
         if (!isValidHandshake(req)) {
-            res.writeHead(400, { 'Content-Type': 'text/html' });
-            res.end();
+            socket.write(
+                'HTTP/1.1 400 Bad Request\r\n' +
+                'Connection: close\r\n' +
+                '\r\n'
+            );
             return;
         }
     }
     else {
-        res.writeHead(404, { 'Content-Type': 'text/html' });
-        res.end();
+        socket.write(
+            'HTTP/1.1 404 Not Found\r\n' +
+            'Connection: close\r\n' +
+            '\r\n'
+        )
+        return;
     }
-}).listen(8080);
-server.on("upgrade", (req, socket, head) => {
+
     socket.write(
         'HTTP/1.1 101 Switching Protocols\r\n' +
         'Upgrade: websocket\r\n' +
