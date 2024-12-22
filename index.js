@@ -79,6 +79,7 @@ function handleData(data, socket) {
         }
     }
     else {
+        // todo: handle fragmentation
         const unmaskedPayload = frame.transformPayload().toString()
         console.log("Received message", unmaskedPayload);
         sendFrame(socket, FRAME_TYPES.TEXT, unmaskedPayload);
