@@ -1,6 +1,5 @@
 import http from "http";
 import { createHash } from 'crypto';
-const sha1 = createHash('sha1');
 const GLOABALLY_UNIQUE_IDENTIFIER = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
 http.createServer(function (req, res) {
@@ -60,5 +59,5 @@ function isValidHandshake(req) {
  */
 
 function generateAcceptValue(key) {
-    return sha1.update(key+GLOABALLY_UNIQUE_IDENTIFIER).digest('base64');
+    return createHash('sha1').update(key+GLOABALLY_UNIQUE_IDENTIFIER).digest('base64');
 }
