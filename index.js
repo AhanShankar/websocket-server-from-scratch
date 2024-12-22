@@ -2,7 +2,7 @@ import http from "http";
 import { createHash } from 'crypto';
 const GLOABALLY_UNIQUE_IDENTIFIER = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
-http.createServer(function (req, res) {
+const server = http.createServer(function (req, res) {
     const url = req.url;
     const method = req.method;
     if (url == "/chat" && method == "GET") {
@@ -17,6 +17,18 @@ http.createServer(function (req, res) {
         res.end();
     }
 }).listen(8080);
+server.on("upgrade", (req, socket, head) => {
+    socket.write(
+        'HTTP/1.1 101 Switching Protocols\r\n' +
+        'Upgrade: websocket\r\n' +
+        'Connection: Upgrade\r\n' +
+        `Sec-WebSocket-Accept: ${generateAcceptValue(req.headers["sec-websocket-key"])}\r\n` +
+        '\r\n'
+    );
+    socket.on("data", (data) => {
+        console.log(data);
+    });
+})
 
 /**
  * Validates if the request is a valid handshake for a WebSocket connection
@@ -51,5 +63,5 @@ function isValidHandshake(req) {
  */
 
 function generateAcceptValue(key) {
-    return createHash('sha1').update(key+GLOABALLY_UNIQUE_IDENTIFIER).digest('base64');
+    return createHash('sha1').update(key + GLOABALLY_UNIQUE_IDENTIFIER).digest('base64');
 }
