@@ -78,8 +78,11 @@ function handleData(data, socket) {
             return;
         }
     }
-    else
-        console.log(frame.transformPayload().toString());
+    else {
+        const unmaskedPayload = frame.transformPayload().toString()
+        console.log("Received message", unmaskedPayload);
+        sendFrame(socket, FRAME_TYPES.TEXT, unmaskedPayload);
+    }
 }
 
 /**
@@ -97,6 +100,14 @@ function sendFrame(socket, type, payload) {
         const buffer = Buffer.alloc(2);
         buffer[0] = 0b10001000;
         buffer[1] = 0;
+        socket.write(buffer);
+    }
+    if (type === FRAME_TYPES.TEXT) {
+        const payloadBuffer = Buffer.from(payload);
+        const buffer = Buffer.alloc(payloadBuffer.length + 2);
+        buffer[0] = 0b10000001; // todo: handle fragmentation
+        buffer[1] = payloadBuffer.length;
+        payloadBuffer.copy(buffer, 2);
         socket.write(buffer);
     }
 }
