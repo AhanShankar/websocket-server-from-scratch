@@ -85,12 +85,14 @@ function handleData(data, socket) {
 /**
  * Sends a frame to the client
  * @param {Duplex} socket 
- * @param {string} type 
+ * @param {number} type 
  * @param {any} payload 
  */
 
 function sendFrame(socket, type, payload) {
     if (type === FRAME_TYPES.CLOSE) {
+        if (!socket.writable)
+            return;
         console.log("Sending close frame");
         const buffer = Buffer.alloc(2);
         buffer[0] = 0b10001000;
