@@ -5,7 +5,7 @@ http.createServer(function (req, res) {
     const url = req.url;
     const method = req.method;
     if (url == "/chat" && method == "GET") {
-        if(isValidHandshake(req)){
+        if (isValidHandshake(req)) {
             res.writeHead(101, {
                 'Upgrade': 'websocket',
                 'Connection': 'Upgrade',
@@ -13,18 +13,17 @@ http.createServer(function (req, res) {
             });
             res.end();
         }
-        else
-        {
-            res.writeHead(400, { 'Content-Type': 'text/html' }); //write a response to the client
-            res.end(); //end the response
+        else {
+            res.writeHead(400, { 'Content-Type': 'text/html' });
+            res.end();
             return;
         }
     }
     else {
-        res.writeHead(404, { 'Content-Type': 'text/html' }); //write a response to the client
-        res.end(); //end the response
+        res.writeHead(404, { 'Content-Type': 'text/html' });
+        res.end();
     }
-}).listen(8080); //the server object listens on port 8080
+}).listen(8080);
 
 /**
  * Validates if the request is a valid handshake for a WebSocket connection
