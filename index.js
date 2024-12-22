@@ -48,10 +48,6 @@ server.on("upgrade", (req, socket, head) => {
         '\r\n'
     );
     console.log("Connection established");
-    setTimeout(() => {
-        sendFrame(socket, FRAME_TYPES.CLOSE);
-        socket.end();
-    }, 2000);
     socket.on("data", (data) => {
         try {
             handleData(data, socket);
