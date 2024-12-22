@@ -29,8 +29,7 @@ server.on("upgrade", (req, socket, head) => {
     );
     socket.on("data", (data) => {
         const frame = new Frame(data);
-        console.log(frame);
-        console.log(data);
+        console.log(frame.transformPayload().toString());
     });
 })
 
