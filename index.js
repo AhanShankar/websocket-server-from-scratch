@@ -41,6 +41,10 @@ server.on("upgrade", (req, socket, head) => {
     );
     socket.on("data", (data) => {
         const frame = new Frame(data);
+        if (!frame.mask) {
+            socket.end();
+            return;
+        }
         console.log(frame.transformPayload().toString());
     });
 })
