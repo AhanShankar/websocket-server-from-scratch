@@ -72,7 +72,7 @@ function handleData(data, socket) {
 
         // close frame
         if (frame.opcode === FRAME_TYPES.CLOSE) {
-            console.log("Closing connection");
+            console.log("Received close frame");
             sendFrame(socket, FRAME_TYPES.CLOSE);
             socket.end();
             return;
@@ -91,6 +91,7 @@ function handleData(data, socket) {
 
 function sendFrame(socket, type, payload) {
     if (type === FRAME_TYPES.CLOSE) {
+        console.log("Sending close frame");
         const buffer = Buffer.alloc(2);
         buffer[0] = 0b10001000;
         buffer[1] = 0;
