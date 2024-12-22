@@ -1,5 +1,7 @@
 import http from "http";
-
+import { createHash } from 'crypto';
+const sha1 = createHash('sha1');
+const GLOABALLY_UNIQUE_IDENTIFIER = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
 http.createServer(function (req, res) {
     const url = req.url;
@@ -9,7 +11,7 @@ http.createServer(function (req, res) {
             res.writeHead(101, {
                 'Upgrade': 'websocket',
                 'Connection': 'Upgrade',
-                'Sec-WebSocket-Accept': 's3pPLMBiTxaQ9kYGzzhZRbK+xOo='
+                'Sec-WebSocket-Accept': generateAcceptValue(req.headers["sec-websocket-key"])
             });
             res.end();
         }
@@ -49,4 +51,14 @@ function isValidHandshake(req) {
     if (req.headers["sec-websocket-version"] !== "13")
         return false
     return true
+}
+
+/**
+ * Creates the value for the Sec-WebSocket-Accept header
+ * @param {string} key the value of the Sec-WebSocket-Key header form the client
+ * @returns {string} the value for the Sec-WebSocket-Accept header
+ */
+
+function generateAcceptValue(key) {
+    return sha1.update(key+GLOABALLY_UNIQUE_IDENTIFIER).digest('base64');
 }
