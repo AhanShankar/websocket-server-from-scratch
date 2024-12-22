@@ -1,5 +1,7 @@
 import http from "http";
 import { createHash } from 'crypto';
+import { Frame } from './frame.js';
+
 const GLOABALLY_UNIQUE_IDENTIFIER = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
 const server = http.createServer(function (req, res) {
@@ -26,6 +28,8 @@ server.on("upgrade", (req, socket, head) => {
         '\r\n'
     );
     socket.on("data", (data) => {
+        const frame = new Frame(data);
+        console.log(frame);
         console.log(data);
     });
 })
