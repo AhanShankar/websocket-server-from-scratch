@@ -1,9 +1,17 @@
 import http from "http";
 import { createHash } from 'crypto';
 import { Frame } from './frame.js';
+import { Duplex } from "stream";
 
 const GLOABALLY_UNIQUE_IDENTIFIER = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
-
+const FRAME_TYPES = {
+    CONTINUATION: 0,
+    TEXT: 1,
+    BINARY: 2,
+    CLOSE: 8,
+    PING: 9,
+    PONG: 10
+}
 const server = http.createServer(function (req, res) {
     res.writeHead(404, { "Content-Type": "text/plain" });
     res.write("Websocket server does not support HTTP requests");
@@ -63,14 +71,31 @@ function handleData(data, socket) {
     if (frame.isControlFrame) {
 
         // close frame
-        if (frame.opcode === 8) {
+        if (frame.opcode === FRAME_TYPES.CLOSE) {
             console.log("Closing connection");
+            sendFrame(socket, FRAME_TYPES.CLOSE);
             socket.end();
             return;
         }
     }
     else
         console.log(frame.transformPayload().toString());
+}
+
+/**
+ * Sends a frame to the client
+ * @param {Duplex} socket 
+ * @param {string} type 
+ * @param {any} payload 
+ */
+
+function sendFrame(socket, type, payload) {
+    if (type === FRAME_TYPES.CLOSE) {
+        const buffer = Buffer.alloc(2);
+        buffer[0] = 0b10001000;
+        buffer[1] = 0;
+        socket.write(buffer);
+    }
 }
 /**
  * Validates if the request is a valid handshake for a WebSocket connection

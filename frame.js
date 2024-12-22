@@ -1,4 +1,11 @@
-
+const FRAME_TYPES = {
+    CONTINUATION: 0,
+    TEXT: 1,
+    BINARY: 2,
+    CLOSE: 8,
+    PING: 9,
+    PONG: 10
+}
 export class Frame {
 
     /**
@@ -12,7 +19,7 @@ export class Frame {
         this.FIN = (buffer[0] & 0b10000000) === 0b10000000;
         this.opcode = buffer[0] & 0b00001111;
         this.opcode = parseInt(this.opcode, 10);
-        this.isControlFrame = [8, 9, 10].includes(this.opcode);
+        this.isControlFrame = [FRAME_TYPES.CLOSE, FRAME_TYPES.PING, FRAME_TYPES.PONG].includes(this.opcode);
         this.mask = (buffer[1] & 0b10000000) === 0b10000000;
         this.payloadLength = this.calculatePayloadLength(buffer);
         if (this.mask) {
