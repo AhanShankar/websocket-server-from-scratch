@@ -39,16 +39,39 @@ server.on("upgrade", (req, socket, head) => {
         `Sec-WebSocket-Accept: ${generateAcceptValue(req.headers["sec-websocket-key"])}\r\n` +
         '\r\n'
     );
+    console.log("Connection established");
     socket.on("data", (data) => {
-        const frame = new Frame(data);
-        if (!frame.mask) {
-            socket.end();
-            return;
+        try {
+            handleData(data, socket);
+        } catch (err) {
+            console.error(err);
         }
-        console.log(frame.transformPayload().toString());
     });
 })
 
+/**
+ * handles the data received from the client
+ * @param {Buffer} data 
+ */
+
+function handleData(data, socket) {
+    const frame = new Frame(data);
+    if (!frame.mask) {
+        socket.end();
+        return;
+    }
+    if (frame.isControlFrame) {
+
+        // close frame
+        if (frame.opcode === 8) {
+            console.log("Closing connection");
+            socket.end();
+            return;
+        }
+    }
+    else
+        console.log(frame.transformPayload().toString());
+}
 /**
  * Validates if the request is a valid handshake for a WebSocket connection
  * @param {http.IncomingMessage} req the request from the client
