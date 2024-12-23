@@ -77,6 +77,11 @@ function handleData(data, socket) {
             socket.end();
             return;
         }
+        else if (frame.opcode === FRAME_TYPES.PING)
+            sendFrame(socket, FRAME_TYPES.PONG);
+
+        else if (frame.opcode === FRAME_TYPES.PONG)
+            console.log("Received pong frame")
     }
     else {
         // todo: handle fragmentation
@@ -96,21 +101,33 @@ function handleData(data, socket) {
 function sendFrame(socket, type, payload) {
     if (!socket.writable)
         return;
+    let buffer;
     if (type === FRAME_TYPES.CLOSE) {
         console.log("Sending close frame");
-        const buffer = Buffer.alloc(2);
+        buffer = Buffer.alloc(2);
         buffer[0] = 0b10001000;
         buffer[1] = 0;
-        socket.write(buffer);
     }
-    if (type === FRAME_TYPES.TEXT) {
+    else if (type === FRAME_TYPES.TEXT) {
         const payloadBuffer = Buffer.from(payload);
-        const buffer = Buffer.alloc(payloadBuffer.length + 2);
+        buffer = Buffer.alloc(payloadBuffer.length + 2);
         buffer[0] = 0b10000001; // todo: handle fragmentation
         buffer[1] = payloadBuffer.length;
         payloadBuffer.copy(buffer, 2);
-        socket.write(buffer);
     }
+    else if (type === FRAME_TYPES.PONG) {
+        console.log("Sending pong frame");
+        buffer = Buffer.alloc(2);
+        buffer[0] = 0b10001010;
+        buffer[1] = 0;
+    }
+    else if (type === FRAME_TYPES.PING) {
+        console.log("sending ping frame");
+        buffer = Buffer.alloc(2);
+        buffer[0] = 0b10001001;
+        buffer[1] = 0;
+    }
+    socket.write(buffer);
 }
 /**
  * Validates if the request is a valid handshake for a WebSocket connection
