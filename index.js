@@ -119,23 +119,13 @@ function sendFrame(socket, type, payload = "") {
  */
 
 function isValidHandshake(req) {
-    if (req.httpVersion === "1.0")
-        return false
-    if (!req.headers.host)
-        return false
-    if (req.headers.upgrade.toLowerCase() !== "websocket")
-        return false
-    if (req.headers.connection.toLowerCase() !== "upgrade")
-        return false
-    if (!req.headers["sec-websocket-key"])
-        return false
-    const decodedString = Buffer.from(req.headers["sec-websocket-key"], 'base64')
-    if (decodedString.length !== 16)
-        return false
-    // todo: return appropriate error code if the version is not supported
-    if (req.headers["sec-websocket-version"] !== "13")
-        return false
-    return true
+    return !(req.httpVersion === "1.0" || 
+        !req.headers.host || 
+        req.headers.upgrade.toLowerCase() !== "websocket" || 
+        req.headers.connection.toLowerCase() !== "upgrade" || 
+        !req.headers["sec-websocket-key"] || 
+        Buffer.from(req.headers["sec-websocket-key"], 'base64').length !== 16 || 
+        req.headers["sec-websocket-version"] !== "13");
 }
 
 /**
