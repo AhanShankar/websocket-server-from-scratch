@@ -1,6 +1,6 @@
 import http from "http";
 import { createHash } from 'crypto';
-import { Frame } from './frame.js';
+import { ClientFrame } from "./ClientFrame.js";
 import { Duplex } from "stream";
 
 const GLOABALLY_UNIQUE_IDENTIFIER = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
@@ -63,7 +63,7 @@ server.on("upgrade", (req, socket, head) => {
  */
 
 function handleData(data, socket) {
-    const frame = new Frame(data);
+    const frame = new ClientFrame(data);
     if (!frame.mask) {
         socket.end();
         return;
