@@ -1,4 +1,4 @@
-const FIXED_LENGTH = 2;
+import { FIXED_LENGTH } from "./constants";
 export class ServerFrame {
     /**
      * @constructor

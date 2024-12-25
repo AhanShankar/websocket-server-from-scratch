@@ -3,17 +3,8 @@ import { createHash } from 'crypto';
 import { ClientFrame } from "./ClientFrame.js";
 import { ServerFrame } from "./ServerFrame.js";
 import { Duplex } from "stream";
+import { GLOABALLY_UNIQUE_IDENTIFIER, FRAME_TYPES, SECOND } from "./constants.js";
 
-const GLOABALLY_UNIQUE_IDENTIFIER = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
-const FRAME_TYPES = {
-    CONTINUATION: 0,
-    TEXT: 1,
-    BINARY: 2,
-    CLOSE: 8,
-    PING: 9,
-    PONG: 10
-}
-const SECOND = 1000;
 let pongRecieved = false;
 const server = http.createServer(function (req, res) {
     res.writeHead(404, { "Content-Type": "text/plain" });
