@@ -13,6 +13,8 @@ const FRAME_TYPES = {
     PING: 9,
     PONG: 10
 }
+const SECOND = 1000;
+let pongRecieved = false;
 const server = http.createServer(function (req, res) {
     res.writeHead(404, { "Content-Type": "text/plain" });
     res.write("Websocket server does not support HTTP requests");
@@ -48,6 +50,7 @@ server.on("upgrade", (req, socket, head) => {
         `Sec-WebSocket-Accept: ${generateAcceptValue(req.headers["sec-websocket-key"])}\r\n` +
         '\r\n'
     );
+    setInterval(() => poll(socket), 5 * SECOND);
     console.log("Connection established");
     socket.on("data", (data) => {
         try {
@@ -81,8 +84,10 @@ function handleData(data, socket) {
         else if (frame.opcode === FRAME_TYPES.PING)
             sendFrame(socket, FRAME_TYPES.PONG);
 
-        else if (frame.opcode === FRAME_TYPES.PONG)
+        else if (frame.opcode === FRAME_TYPES.PONG) {
             console.log("Received pong frame")
+            pongRecieved = true;
+        }
     }
     else {
         // todo: handle fragmentation
@@ -103,6 +108,17 @@ function sendFrame(socket, type, payload = "") {
     if (!socket.writable)
         return;
     const frame = new ServerFrame({ FIN: true, opcode: type, payload });
+    // get key from opcode
+
+    if (type === FRAME_TYPES.PONG)
+        console.log("Sending pong frame");
+    else if (type === FRAME_TYPES.PING)
+        console.log("Sending ping frame");
+    else if (type === FRAME_TYPES.CLOSE)
+        console.log("Sending close frame");
+    else if (type === FRAME_TYPES.TEXT)
+        console.log("Sending message", payload);
+
     socket.write(frame.toBuffer());
 }
 /**
@@ -139,4 +155,30 @@ function isValidHandshake(req) {
 
 function generateAcceptValue(key) {
     return createHash('sha1').update(key + GLOABALLY_UNIQUE_IDENTIFIER).digest('base64');
+}
+
+/**
+ * Polls the client to check if the connection is still active
+ * @param {Duplex} socket 
+ */
+
+async function poll(socket) {
+    pongRecieved = false;
+    sendFrame(socket, FRAME_TYPES.PING);
+    await delay(0.5 * SECOND);
+    if (!pongRecieved) {
+        console.log("Connection closed due to inactivity");
+        socket.end();
+    }
+}
+
+/**
+ * Simulates a delay
+ * @param {number} ms the number of milliseconds to delay
+ */
+
+async function delay(ms) {
+    return new Promise(resolve => {
+        setTimeout(resolve, ms);
+    });
 }
