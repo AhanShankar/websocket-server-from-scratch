@@ -1,6 +1,7 @@
 import http from "http";
 import { createHash } from 'crypto';
 import { ClientFrame } from "./ClientFrame.js";
+import { ServerFrame } from "./ServerFrame.js";
 import { Duplex } from "stream";
 
 const GLOABALLY_UNIQUE_IDENTIFIER = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
@@ -98,36 +99,11 @@ function handleData(data, socket) {
  * @param {any} payload 
  */
 
-function sendFrame(socket, type, payload) {
+function sendFrame(socket, type, payload = "") {
     if (!socket.writable)
         return;
-    let buffer;
-    if (type === FRAME_TYPES.CLOSE) {
-        console.log("Sending close frame");
-        buffer = Buffer.alloc(2);
-        buffer[0] = 0b10001000;
-        buffer[1] = 0;
-    }
-    else if (type === FRAME_TYPES.TEXT) {
-        const payloadBuffer = Buffer.from(payload);
-        buffer = Buffer.alloc(payloadBuffer.length + 2);
-        buffer[0] = 0b10000001; // todo: handle fragmentation
-        buffer[1] = payloadBuffer.length;
-        payloadBuffer.copy(buffer, 2);
-    }
-    else if (type === FRAME_TYPES.PONG) {
-        console.log("Sending pong frame");
-        buffer = Buffer.alloc(2);
-        buffer[0] = 0b10001010;
-        buffer[1] = 0;
-    }
-    else if (type === FRAME_TYPES.PING) {
-        console.log("sending ping frame");
-        buffer = Buffer.alloc(2);
-        buffer[0] = 0b10001001;
-        buffer[1] = 0;
-    }
-    socket.write(buffer);
+    const frame = new ServerFrame({ FIN: true, opcode: type, payload });
+    socket.write(frame.toBuffer());
 }
 /**
  * Validates if the request is a valid handshake for a WebSocket connection
