@@ -1,4 +1,3 @@
-// import { Frame } from "./frame";
 const FRAME_TYPES = {
     CONTINUATION: 0,
     TEXT: 1,
