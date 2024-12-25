@@ -1,4 +1,4 @@
-import { FRAME_TYPES } from "./constants";
+import { FRAME_TYPES } from "./constants.js";
 
 export class ClientFrame {
 
