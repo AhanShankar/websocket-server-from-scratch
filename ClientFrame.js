@@ -24,6 +24,11 @@ export class ClientFrame {
         this.payload = buffer.subarray(this.offset);
     }
 
+    /**
+     * Calculates the length of the payload data according to the payload length bits.
+     * @param {Buffer} buffer 
+     * @returns {number} - The length of the payload data.
+     */
     calculatePayloadLength(buffer) {
         this.offset = 2;
         const payloadLengthBits = buffer[1] & 0b01111111;
