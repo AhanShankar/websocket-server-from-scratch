@@ -25,21 +25,18 @@ export class ClientFrame {
     }
 
     calculatePayloadLength(buffer) {
-        this.offset = 1;
+        this.offset = 2;
         const payloadLengthBits = buffer[1] & 0b01111111;
         const payloadLength = parseInt(payloadLengthBits, 10);
         if (payloadLength < 126) {
-            this.offset += 1;
             return payloadLength;
         }
         else if (payloadLength === 126) {
-            this.offset = 2;
             const payloadLength = buffer.readUInt16BE(this.offset);
             this.offset += 2;
             return payloadLength;
         }
         else {
-            this.offset = 2;
             const payloadLength = buffer.readBigInt64BE(this.offset);
             this.offset += 8;
             return payloadLength;
